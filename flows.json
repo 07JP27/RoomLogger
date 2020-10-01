@@ -1,0 +1,271 @@
+[
+    {
+        "id": "a7025930.1dd758",
+        "type": "tab",
+        "label": "フロー 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c975c99a.7086b8",
+        "type": "rpi-dht22",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "topic": "計測(rpi-dht22)",
+        "dht": "22",
+        "pintype": "4",
+        "pin": "7",
+        "x": 300,
+        "y": 40,
+        "wires": [
+            [
+                "ade5ddc1.458ef"
+            ]
+        ]
+    },
+    {
+        "id": "e2978bab.127d88",
+        "type": "debug",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "ac15e304.bdfc6",
+        "type": "inject",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "*/15 0-23 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 90,
+        "y": 40,
+        "wires": [
+            [
+                "c975c99a.7086b8"
+            ]
+        ]
+    },
+    {
+        "id": "ade5ddc1.458ef",
+        "type": "function",
+        "z": "a7025930.1dd758",
+        "name": "測定値と測定日時を設定",
+        "func": "var now = new Date();\n//now.setTime(now.getTime() + 1000*60*60*9);\nvar year = now.getFullYear();\nvar month = (\"0\"+(now.getMonth() + 1)).slice(-2);\nvar day = (\"0\"+now.getDate()).slice(-2);\nvar hour = (\"0\"+now.getHours()).slice(-2);\nvar minute = (\"0\"+now.getMinutes()).slice(-2);\nvar second = (\"0\"+now.getSeconds()).slice(-2);\n\nvar formatedNow = ( year + '-' + month + '-' + day + ' ' + hour + \":\"+ minute + \":\"+ second);\n\n\nlet temp = msg.payload;\nmsg.payload = {\n    \"dateTime\":formatedNow,\n    \"temp\": parseFloat(temp),\n    \"hum\": parseFloat(msg.humidity)\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 530,
+        "y": 40,
+        "wires": [
+            [
+                "ab9b8002.52f3f"
+            ]
+        ]
+    },
+    {
+        "id": "237aaf73.0a294",
+        "type": "template",
+        "z": "a7025930.1dd758",
+        "name": "シークレット設定",
+        "field": "payload.secret",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "",
+        "output": "str",
+        "x": 1030,
+        "y": 40,
+        "wires": [
+            [
+                "b6a9545e.0689b8"
+            ]
+        ]
+    },
+    {
+        "id": "ab9b8002.52f3f",
+        "type": "template",
+        "z": "a7025930.1dd758",
+        "name": "センサーID設定",
+        "field": "payload.sensorId",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "",
+        "output": "str",
+        "x": 780,
+        "y": 40,
+        "wires": [
+            [
+                "237aaf73.0a294"
+            ]
+        ]
+    },
+    {
+        "id": "c7dd6ce3.fe5ba",
+        "type": "http request",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 290,
+        "y": 300,
+        "wires": [
+            [
+                "a50b842c.102158"
+            ]
+        ]
+    },
+    {
+        "id": "b6a9545e.0689b8",
+        "type": "template",
+        "z": "a7025930.1dd758",
+        "name": "GASのURL設定",
+        "field": "url",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "",
+        "output": "str",
+        "x": 180,
+        "y": 140,
+        "wires": [
+            [
+                "f699701f.add79"
+            ]
+        ]
+    },
+    {
+        "id": "f699701f.add79",
+        "type": "template",
+        "z": "a7025930.1dd758",
+        "name": "リクエストヘッダー",
+        "field": "headers['Content-Type']",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "application/json",
+        "output": "str",
+        "x": 400,
+        "y": 140,
+        "wires": [
+            [
+                "c7dd6ce3.fe5ba",
+                "e2978bab.127d88"
+            ]
+        ]
+    },
+    {
+        "id": "7243aad.9c3da54",
+        "type": "debug",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1090,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "e02ab4d3.8cc578",
+        "type": "function",
+        "z": "a7025930.1dd758",
+        "name": "リダイレクト",
+        "func": "msg.url = msg.headers.location;\ndelete msg.headers;\ndelete msg.payload;\ndelete msg.statusCode;\ndelete msg.method;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 710,
+        "y": 480,
+        "wires": [
+            [
+                "16066333.b38bfd"
+            ]
+        ]
+    },
+    {
+        "id": "16066333.b38bfd",
+        "type": "http request",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "query",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 910,
+        "y": 480,
+        "wires": [
+            [
+                "7243aad.9c3da54"
+            ]
+        ]
+    },
+    {
+        "id": "a50b842c.102158",
+        "type": "switch",
+        "z": "a7025930.1dd758",
+        "name": "",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "302",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "301",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 530,
+        "y": 480,
+        "wires": [
+            [
+                "e02ab4d3.8cc578"
+            ],
+            [
+                "e02ab4d3.8cc578"
+            ],
+            []
+        ]
+    }
+]
